@@ -1,0 +1,32 @@
+server:
+  port: 9001
+spring:
+  profiles:
+    active: dev
+  application:
+    name: auth-service
+  config:
+    import:
+      - nacos:${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}?group=auth
+      - nacos:database.yaml?group=auth
+      - nacos:redis.yaml?group=auth
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      config:
+        file-extension: yaml
+        namespace: ${spring.profiles.active}
+
+yuan:
+  ignored: # 忽略的白名单接口
+    urls:
+      - /auth/**  # 认证相关
+      - /oauth2/**
+  # 证书配置
+  keystore:
+    path: classpath:yuan.jks
+    password: 962464
+    key-alias: yuan
+    key-password: 962464
+  api:
+    prefix: /auth   # 接口前缀

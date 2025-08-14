@@ -1,0 +1,30 @@
+server:
+  port: 9010
+
+spring:
+  application:
+    name: system-service
+  profiles:
+    active: dev
+  config:
+    import:
+      - nacos:${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}?group=system
+      - nacos:database.yaml?group=system
+      - nacos:redis.yaml?group=system
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      config:
+        file-extension: yaml
+        namespace: ${spring.profiles.active}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: lb://auth-service
+yuan:
+  ignored: # 忽略的白名单接口
+    urls:
+      - /admin/user/findByUsername/**  # 认证服务调用，未登录状态
+  api:
+    prefix: /admin

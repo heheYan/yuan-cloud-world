@@ -1,0 +1,75 @@
+server:
+  port: 9527
+spring:
+  application:
+    name: gateway
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      config:
+        file-extension: yaml
+    gateway:
+      routes:
+        - id: system-service
+          uri: lb://system-service
+          predicates:
+            - Path=/api/admin/**
+
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**,/api/oauth2/**
+
+      default-filters:
+        - name: RemoveRequestHeader
+          args:
+            name: Cookie
+        # 令牌中继
+        - TokenRelay=
+        # 代理路径，移除前缀路径的内容
+        - StripPrefix=1
+
+        # redis
+  data:
+    redis:
+      url: redis://localhost:6379
+      database: 0
+      timeout: 10000
+      repositories:
+        enabled: false
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: 10000
+          max-idle: 8
+          min-idle: 0
+  security:
+    oauth2:
+      # 资源服务器配置
+      resourceserver:
+        jwt:
+          # Jwt中claims的iss属性，也就是jwt的签发地址，即认证服务器的根路径
+          # 资源服务器会进一步的配置，通过该地址获取公钥以解析jwt
+          issuer-uri: http://127.0.0.1:9001
+      client:
+        provider:
+          # 认证提供者,自定义名称
+          custom-issuer:
+            # Token签发地址(认证服务地址)
+            issuer-uri: http://127.0.0.1:9001
+            # 获取用户信息的地址，默认的/userinfo端点需要IdToken获取，为避免麻烦自定一个用户信息接口
+            user-info-uri: ${spring.security.oauth2.client.provider.custom-issuer.issuer-uri}/user
+            user-name-attribute: name
+  main:
+    allow-bean-definition-overriding: true
+yuan:
+  config:
+    scan:
+      enabled: false  #  是否开启配置扫描，包含接口追踪拦截、security拦截配置，网关默认关闭
+  ignored: # 忽略的url
+    urls:
+      - /api/auth/**  # 认证相关
+      - /api/oauth2/**
