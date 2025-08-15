@@ -5,7 +5,10 @@ import com.yuan.cloud.auth.util.YaCaptchaUtil;
 import com.yuan.cloud.auth.vo.TokenResponseVO;
 import com.yuan.cloud.auth.vo.YaCaptchaVO;
 import com.yuan.cloud.core.common.annotation.YaApi;
+import com.yuan.cloud.core.common.constant.YaRedisKeyConst;
 import com.yuan.cloud.core.common.enums.CaptchaTypeEnum;
+import com.yuan.cloud.core.common.enums.YuanStatusEnum;
+import com.yuan.cloud.core.common.exception.YuanApiException;
 import com.yuan.cloud.core.common.response.YuanR;
 import com.yuan.cloud.core.module.auth.dto.RefreshTokenDTO;
 import com.yuan.cloud.core.module.auth.dto.UserLoginDTO;
@@ -21,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -42,13 +46,21 @@ public class AuthApi {
 
     @Operation(summary = "获取验证码", responses = {@ApiResponse(responseCode = "200", description = "获取验证码成功",
             content = @Content(schema = @Schema(implementation = YaCaptchaVO.class)))})
-    @GetMapping("/captcha")
-    public YaCaptchaVO captcha() {
+    @GetMapping("/captcha/{type}")
+    public YaCaptchaVO captcha(@PathVariable("type") String type) {
+        // 校验验证码类型是否有效
+        if (!CaptchaTypeEnum.isValidType(type)) {
+            throw new YuanApiException(YuanStatusEnum.CAPTCHA_TYPE_NOT_EXIST);
+        }
+        CaptchaTypeEnum typeEnum = CaptchaTypeEnum.getByType(type);
+
         // 生成验证码
         YaCaptchaVO yaCaptchaVO = YaCaptchaUtil.buildCaptchaVO();
-        // 缓存验证码，2分钟过期
-        redisTemplate.opsForValue().set(CaptchaTypeEnum.LOGIN.getType() + yaCaptchaVO.getCaptchaId(),
-                yaCaptchaVO.getCaptchaCode(), CaptchaTypeEnum.LOGIN.getCacheTime(), TimeUnit.MINUTES);
+        // 缓存验证码
+        redisTemplate.opsForValue().set(YaRedisKeyConst.CAPTCHA_KEY + typeEnum.getType() + ":" + yaCaptchaVO.getCaptchaId(),
+                yaCaptchaVO.getCaptchaCode(), typeEnum.getCacheTime(), TimeUnit.MINUTES);
+        // 过期时间，返回秒
+        yaCaptchaVO.setCaptchaExpireAt(typeEnum.getCacheTime() * 60);
         // 返回验证码
         return yaCaptchaVO;
     }

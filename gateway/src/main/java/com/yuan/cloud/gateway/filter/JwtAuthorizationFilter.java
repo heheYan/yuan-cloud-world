@@ -51,14 +51,21 @@ public class JwtAuthorizationFilter implements GlobalFilter {
     private final JwtDecoder jwtDecoder;
 
     @Operation(description = "处理未授权方法")
-    private static Mono<Void> handleUnauthorized(ServerWebExchange exchange) {
+    private Mono<Void> handleUnauthorized(ServerWebExchange exchange) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-        YuanR fail = YuanR.fail(YuanStatusEnum.UNAUTHORIZED);
+        YuanR<Object> fail = YuanR.fail(YuanStatusEnum.UNAUTHORIZED);
         byte[] bits = JSONObject.from(fail).toJSONString().getBytes(StandardCharsets.UTF_8);
         DataBuffer buffer = response.bufferFactory().wrap(bits);
+
+        // 异常处理时增加删除traceId的逻辑
+        ServerHttpRequest request = exchange.getRequest();
+        String traceId = request.getHeaders().getFirst(YaCommonConst.REQ_HEADER_TRACE_ID);
+        if (StrUtil.isNotBlank(traceId)) {
+            redisTemplate.opsForSet().remove(YaRedisKeyConst.SERVER_HEADER_TRACE_ID, traceId);
+        }
         return response.writeWith(Mono.just(buffer));
     }
 
@@ -72,7 +79,7 @@ public class JwtAuthorizationFilter implements GlobalFilter {
         // 当前是否匹配白名单接口
         if (isExcludePath(String.valueOf(request.getPath()))) {
             return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-                // 删除请求头
+                // 删除redis缓存的traceId
                 redisTemplate.opsForSet().remove(YaRedisKeyConst.SERVER_HEADER_TRACE_ID, traceId);
             }));
         }
@@ -95,7 +102,7 @@ public class JwtAuthorizationFilter implements GlobalFilter {
             return handleUnauthorized(exchange);
         }
         // 4.2 请求头中添加用户信息
-        request.mutate().header(YaOauthConst.AUTH_HEADER_USER, jwt.getClaims().toString());
+        request.mutate().header(YaOauthConst.AUTH_HEADER_USER, jwt.getClaims().get(YaOauthConst.JWT_CLAIM_USER_ID).toString());
 
         // 5. 放行
         return chain.filter(exchange).then(Mono.fromRunnable(() -> {

@@ -1,6 +1,7 @@
 package com.yuan.cloud.core.module.system.dto;
 
 import com.yuan.cloud.core.base.dto.AbstractBaseDTO;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,6 +14,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class RouteDTO extends AbstractBaseDTO implements Serializable {
+    @NotNull
     @Size(max = 255)
     String name;
     @Size(max = 255)
@@ -26,5 +28,8 @@ public class RouteDTO extends AbstractBaseDTO implements Serializable {
     Long pId;
     @Size(max = 255)
     String pCode;
-    Boolean isEnabled;
+
+    Boolean isEnabled = true;
+
+    private Integer sorted = 0;
 }

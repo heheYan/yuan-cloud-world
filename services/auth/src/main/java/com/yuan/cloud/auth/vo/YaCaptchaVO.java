@@ -30,6 +30,6 @@ public class YaCaptchaVO {
     /**
      * 验证码过期时间
      */
-    private Long captchaExpireAt;
+    private int captchaExpireAt;
 
 }

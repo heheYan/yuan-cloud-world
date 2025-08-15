@@ -22,6 +22,8 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: lb://auth-service
+  jpa:
+    show-sql: true
 yuan:
   ignored: # 忽略的白名单接口
     urls:

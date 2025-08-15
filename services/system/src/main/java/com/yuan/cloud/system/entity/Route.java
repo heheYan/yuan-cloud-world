@@ -45,7 +45,10 @@ public class Route extends AbstractBaseEntity {
     @Column(name = "p_code")
     private String pCode;
 
+    @Column(name = "sorted")
+    private Integer sorted;
+
     @Column(name = "is_enabled")
-    private Boolean isEnabled;
+    private Boolean isEnabled = true;
 
 }

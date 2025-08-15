@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,5 +22,6 @@ public class RoleDTO extends AbstractBaseDTO implements Serializable {
     @Size(max = 255)
     String description;
     Boolean enabled;
-    List<RouteDTO> routes;
+    List<RouteDTO> routes = new ArrayList<>();
+    private List<UserDTO> users = new ArrayList<>();
 }

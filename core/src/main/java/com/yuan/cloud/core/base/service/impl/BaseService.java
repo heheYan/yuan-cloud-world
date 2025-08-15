@@ -2,6 +2,7 @@ package com.yuan.cloud.core.base.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.util.StrUtil;
 import com.yuan.cloud.core.base.entity.AbstractBaseEntity;
 import com.yuan.cloud.core.base.query.AbstractBaseQuery;
 import com.yuan.cloud.core.base.query.YaPageQuery;
@@ -98,7 +99,8 @@ public class BaseService<T extends AbstractBaseEntity, Q extends AbstractBaseQue
      */
     @Override
     public List<T> listAll(Q condition) {
-        return baseRepository.findAll();
+        Specification<T> specification = QueryBuilderUtil.builder(condition);
+        return baseRepository.findAll(specification);
     }
 
     /**
@@ -169,9 +171,13 @@ public class BaseService<T extends AbstractBaseEntity, Q extends AbstractBaseQue
     public Page<T> page(YaPageQuery<Q> condition) {
         // 获取查询条件
         Q query = condition.getQuery();
+        String sortBy = condition.getSortBy();
+        if (StrUtil.isBlankIfStr(sortBy)) {
+            sortBy = "updatedAt";
+        }
         // 获取分页信息
         Pageable pageable = PageRequest.of(condition.getCurrentPage(), condition.getPageSize(),
-                Sort.by(Sort.Direction.fromString(condition.getIsAsc() ? "ASC" : "DESC"), condition.getSortBy()));
+                Sort.by(Sort.Direction.fromString(condition.getIsAsc() ? "ASC" : "DESC"), sortBy));
         // 获取查询条件
         Specification<T> specification = QueryBuilderUtil.builder(query);
         return baseRepository.findAll(specification, pageable);

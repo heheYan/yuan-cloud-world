@@ -35,7 +35,8 @@ public enum YuanStatusEnum {
     QUERY_CONDITION_ERROR(1103, "查询条件拼接失败"),
     TOKEN_INVALID(1104, "token无效"),
     CAPTCHA_CODE_MISSING(1105, "验证码信息缺失"),
-    UPDATE_ID_MISSING(1106, "更新方法ID不能为空"),
+    CAPTCHA_TYPE_NOT_EXIST(1106, "验证码类型不存在"),
+    UPDATE_ID_MISSING(1107, "更新方法ID不能为空"),
 
     // ======== 12xx : 请求错误 ==========
     UNAUTHORIZED(1201, "无权限访问"),

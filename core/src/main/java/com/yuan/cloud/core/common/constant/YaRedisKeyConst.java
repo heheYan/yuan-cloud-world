@@ -25,30 +25,30 @@ public class YaRedisKeyConst {
      *
      * @see com.yuan.cloud.core.common.enums.CaptchaTypeEnum
      */
-    public static final String CAPTCHA_TYPE_LOGIN = "login:";
+    public static final String CAPTCHA_TYPE_LOGIN = "login";
     /**
      * 验证码类型 -  注册
      *
      * @see com.yuan.cloud.core.common.enums.CaptchaTypeEnum
      */
-    public static final String CAPTCHA_TYPE_REGISTER = "register:";
+    public static final String CAPTCHA_TYPE_REGISTER = "register";
     /**
      * 验证码类型 -  重置密码
      *
      * @see com.yuan.cloud.core.common.enums.CaptchaTypeEnum
      */
-    public static final String CAPTCHA_TYPE_RESET_PASSWORD = "resetPassword:";
+    public static final String CAPTCHA_TYPE_RESET_PASSWORD = "resetPassword";
     /**
      * 验证码类型 -  修改密码
      *
      * @see com.yuan.cloud.core.common.enums.CaptchaTypeEnum
      */
-    public static final String CAPTCHA_TYPE_CHANGE_PASSWORD = "changePassword:";
+    public static final String CAPTCHA_TYPE_CHANGE_PASSWORD = "changePassword";
     /**
      * 验证码类型 -  其他
      *
      * @see com.yuan.cloud.core.common.enums.CaptchaTypeEnum
      */
-    public static final String CAPTCHA_TYPE_OTHER = "other:";
+    public static final String CAPTCHA_TYPE_OTHER = "other";
 
 }

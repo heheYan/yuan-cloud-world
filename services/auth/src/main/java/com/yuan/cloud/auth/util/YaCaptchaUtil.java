@@ -2,12 +2,9 @@ package com.yuan.cloud.auth.util;
 
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.LineCaptcha;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import com.yuan.cloud.auth.vo.YaCaptchaVO;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Date;
 
 /**
  * @author YuAN
@@ -31,8 +28,7 @@ public class YaCaptchaUtil {
         return buildCaptchaVO(IdUtil.fastSimpleUUID(),
                 lineCaptcha.getImageBase64Data(),
                 "Line",
-                lineCaptcha.getCode(),
-                120);
+                lineCaptcha.getCode());
     }
 
     /**
@@ -45,13 +41,12 @@ public class YaCaptchaUtil {
      * @param captchaExpireAt 验证码过期时间
      * @return 验证码VO
      */
-    public static YaCaptchaVO buildCaptchaVO(String captchaId, String captchaImg, String captchaType, String captchaCode, int captchaExpireAt) {
+    public static YaCaptchaVO buildCaptchaVO(String captchaId, String captchaImg, String captchaType, String captchaCode) {
         YaCaptchaVO captchaVO = new YaCaptchaVO();
         captchaVO.setCaptchaId(captchaId);
         captchaVO.setCaptchaImg(captchaImg);
         captchaVO.setCaptchaType(captchaType);
         captchaVO.setCaptchaCode(captchaCode);
-        captchaVO.setCaptchaExpireAt(DateUtil.offsetSecond(new Date(), captchaExpireAt).getTime());
         return captchaVO;
     }
 }

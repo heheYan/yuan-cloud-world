@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,5 +26,6 @@ public class RoleVO extends AbstractBaseVO implements Serializable {
     @Size(max = 255)
     String description;
     Boolean enabled;
-    List<RouteDTO> routes;
+    List<RouteDTO> routes = new ArrayList<>();
+    private List<UserVO> users = new ArrayList<>();
 }

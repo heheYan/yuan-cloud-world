@@ -6,6 +6,7 @@ import com.yuan.cloud.auth.util.YaTokenUtil;
 import com.yuan.cloud.auth.vo.TokenResponseVO;
 import com.yuan.cloud.core.common.constant.YaCommonConst;
 import com.yuan.cloud.core.common.constant.YaOauthConst;
+import com.yuan.cloud.core.common.constant.YaRedisKeyConst;
 import com.yuan.cloud.core.common.enums.CaptchaTypeEnum;
 import com.yuan.cloud.core.common.enums.YuanStatusEnum;
 import com.yuan.cloud.core.common.exception.YuanApiException;
@@ -69,7 +70,7 @@ public class LoginService {
             }
 
             // 校验验证码信息
-            String cacheCaptcha = redisTemplate.opsForValue().get(CaptchaTypeEnum.LOGIN.getType() + userLoginDTO.getCaptchaId());
+            String cacheCaptcha = redisTemplate.opsForValue().get(YaRedisKeyConst.CAPTCHA_KEY + CaptchaTypeEnum.LOGIN.getType() + ":" + userLoginDTO.getCaptchaId());
             // 如果缓存中不存在，标识已过期 或 伪造请求，抛出异常
             if (StrUtil.isBlankIfStr(cacheCaptcha)) {
                 throw new YuanApiException(YuanStatusEnum.CAPTCHA_INVALID);
@@ -94,6 +95,7 @@ public class LoginService {
                 String token = accessToken.getTokenValue();
                 loginSuccessVO.setAccessToken(token);
                 loginSuccessVO.setRefreshToken(authenticationToken.getRefreshToken().getTokenValue());
+                loginSuccessVO.setIdToken(authenticationToken.getAdditionalParameters().get("id_token").toString());
                 loginSuccessVO.setTokenType(accessToken.getTokenType().getValue());
                 loginSuccessVO.setExpiresIn(accessToken.getExpiresAt().getEpochSecond() -
                         Instant.now().getEpochSecond());

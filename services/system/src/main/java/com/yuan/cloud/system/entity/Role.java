@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -33,11 +34,14 @@ public class Role extends AbstractBaseEntity {
     private String description;
 
     @Column(name = "is_enabled")
-    private Boolean enabled;
+    private Boolean enabled = true;
+
+    @ManyToMany(fetch = FetchType.LAZY, targetEntity = User.class, mappedBy = "roles")
+    private List<User> users = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, targetEntity = Route.class)
     @JoinTable(name = "s_role_route",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "route_id"))
-    private List<Route> routes;
+    private List<Route> routes = new ArrayList<>();
 }

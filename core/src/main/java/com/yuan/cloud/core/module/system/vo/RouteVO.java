@@ -30,4 +30,5 @@ public class RouteVO extends AbstractBaseVO implements Serializable {
     @Size(max = 255)
     String pCode;
     Boolean isEnabled;
+    private Integer sorted;
 }

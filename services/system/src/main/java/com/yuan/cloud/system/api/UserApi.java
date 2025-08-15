@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yuan.cloud.core.base.api.AbstractBaseApi;
 import com.yuan.cloud.core.common.annotation.YaApi;
+import com.yuan.cloud.core.common.constant.YaOauthConst;
 import com.yuan.cloud.core.common.enums.YuanStatusEnum;
 import com.yuan.cloud.core.common.exception.YuanApiException;
 import com.yuan.cloud.core.module.system.dto.UserDTO;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -98,6 +100,21 @@ public class UserApi extends AbstractBaseApi<User, UserQuery, UserDTO, UserVO, I
         user.setId(dto.getId());
         user.setStatus(dto.getStatus());
         return BeanUtil.copyProperties(userService.update(user), UserVO.class);
+    }
+
+    @Operation(summary = "获取当前登录用户信息",
+            responses = {@ApiResponse(responseCode = "200", description = "查询成功", content = @Content(schema = @Schema(implementation = UserVO.class)))})
+    @GetMapping("/currentUser")
+    public UserVO getCurrentUser(HttpServletRequest request) {
+        String userId = request.getHeader(YaOauthConst.AUTH_HEADER_USER);
+        if (StrUtil.isBlankIfStr(userId)) {
+            throw new YuanApiException(YuanStatusEnum.FAIL);
+        }
+        User user = userService.findById(Long.valueOf(userId));
+        if (user == null) {
+            throw new YuanApiException(YuanStatusEnum.USER_NOT_FOUND);
+        }
+        return BeanUtil.copyProperties(user, getVoClass());
     }
 
     @Override

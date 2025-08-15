@@ -2,6 +2,9 @@ package com.yuan.cloud.core.common.enums;
 
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.yuan.cloud.core.common.constant.YaRedisKeyConst.*;
 
 /**
@@ -32,9 +35,28 @@ public enum CaptchaTypeEnum {
     private final int cacheTime;
 
     CaptchaTypeEnum(String type, String desc, int cacheTime) {
-        this.type = CAPTCHA_KEY + type;
+        this.type = type;
         this.desc = desc;
         this.cacheTime = cacheTime;
+    }
+
+    // 缓存code到枚举的映射，提高性能
+    private static final Map<String, CaptchaTypeEnum> TYPE_MAP = new HashMap<>();
+
+    static {
+        for (CaptchaTypeEnum typeEnum : CaptchaTypeEnum.values()) {
+            TYPE_MAP.put(typeEnum.getType(), typeEnum);
+        }
+    }
+
+    /**
+     * 判断 type 是否有效
+     *
+     * @param type 状态码
+     * @return 是否有效
+     */
+    public static boolean isValidType(String type) {
+        return TYPE_MAP.containsKey(type);
     }
 
     /**
@@ -44,11 +66,6 @@ public enum CaptchaTypeEnum {
      * @return 枚举
      */
     public static CaptchaTypeEnum getByType(String type) {
-        for (CaptchaTypeEnum value : values()) {
-            if (value.getType().equals(type)) {
-                return value;
-            }
-        }
-        return null;
+        return TYPE_MAP.get(type);
     }
 }
