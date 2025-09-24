@@ -1,13 +1,10 @@
 package com.yuan.cloud.auth.service;
 
-import cn.hutool.core.util.StrUtil;
 import com.yuan.cloud.auth.authentication.password.PasswordGrantAuthenticationToken;
 import com.yuan.cloud.auth.util.YaTokenUtil;
 import com.yuan.cloud.auth.vo.TokenResponseVO;
 import com.yuan.cloud.core.common.constant.YaCommonConst;
 import com.yuan.cloud.core.common.constant.YaOauthConst;
-import com.yuan.cloud.core.common.constant.YaRedisKeyConst;
-import com.yuan.cloud.core.common.enums.CaptchaTypeEnum;
 import com.yuan.cloud.core.common.enums.YuanStatusEnum;
 import com.yuan.cloud.core.common.exception.YuanApiException;
 import com.yuan.cloud.core.common.response.YuanR;
@@ -70,7 +67,7 @@ public class LoginService {
             }
 
             // 校验验证码信息
-            String cacheCaptcha = redisTemplate.opsForValue().get(YaRedisKeyConst.CAPTCHA_KEY + CaptchaTypeEnum.LOGIN.getType() + ":" + userLoginDTO.getCaptchaId());
+            /*String cacheCaptcha = redisTemplate.opsForValue().get(YaRedisKeyConst.CAPTCHA_KEY + CaptchaTypeEnum.LOGIN.getType() + ":" + userLoginDTO.getCaptchaId());
             // 如果缓存中不存在，标识已过期 或 伪造请求，抛出异常
             if (StrUtil.isBlankIfStr(cacheCaptcha)) {
                 throw new YuanApiException(YuanStatusEnum.CAPTCHA_INVALID);
@@ -80,7 +77,7 @@ public class LoginService {
                 throw new YuanApiException(YuanStatusEnum.CAPTCHA_CODE_NOT_EQUALS);
             }
             // 校验一致，删除缓存的验证码
-            redisTemplate.delete(CaptchaTypeEnum.LOGIN.getType() + userLoginDTO.getCaptchaId());
+            redisTemplate.delete(CaptchaTypeEnum.LOGIN.getType() + userLoginDTO.getCaptchaId());*/
 
             // 构建 PasswordGrantAuthenticationToken
             PasswordGrantAuthenticationToken passwordGrantAuthenticationToken = getPasswordGrantAuthenticationToken(userLoginDTO, client);

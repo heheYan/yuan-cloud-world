@@ -23,5 +23,6 @@ public class RoleDTO extends AbstractBaseDTO implements Serializable {
     String description;
     Boolean enabled;
     List<RouteDTO> routes = new ArrayList<>();
-    private List<UserDTO> users = new ArrayList<>();
+    
+    List<UserDTO> users = new ArrayList<>();
 }

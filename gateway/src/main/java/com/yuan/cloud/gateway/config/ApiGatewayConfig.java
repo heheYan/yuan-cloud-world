@@ -6,8 +6,10 @@ import com.yuan.cloud.core.common.property.IgnoredUrlProperties;
 import com.yuan.cloud.core.common.response.YuanR;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,6 +40,8 @@ import java.nio.charset.StandardCharsets;
 @EnableReactiveMethodSecurity
 @RequiredArgsConstructor
 public class ApiGatewayConfig {
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
 
     final IgnoredUrlProperties ignoredUrlProperties;
 
@@ -91,9 +95,10 @@ public class ApiGatewayConfig {
     }
 
     @Bean
+    @Lazy // 懒加载，保证网关不受认证服务影响
     public JwtDecoder jwtDecoder() {
         // 使用与auth-service相同的JWK端点
-        return NimbusJwtDecoder.withIssuerLocation("http://127.0.0.1:9001")
+        return NimbusJwtDecoder.withJwkSetUri(issuerUri + "/oauth2/jwks")
                 .build();
     }
 }

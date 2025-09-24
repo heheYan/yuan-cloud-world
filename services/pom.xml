@@ -12,8 +12,12 @@
     <packaging>pom</packaging>
     <description>微服务模块</description>
     <modules>
+        <!-- 系统管理微服务 -->
         <module>system</module>
+        <!-- 认证服务 -->
         <module>auth</module>
+        <!-- 寻宝游戏服务 -->
+        <module>treasure</module>
     </modules>
 
     <dependencies>

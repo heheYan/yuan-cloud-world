@@ -6,6 +6,7 @@ import com.yuan.cloud.core.common.response.YuanR;
 import feign.FeignException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,7 +34,6 @@ public class YuanWebExceptionHandler {
      */
     @ExceptionHandler(YuanApiException.class)
     public YuanR<String> handleYuanApiException(YuanApiException e) {
-        log.error("捕获到自定义异常：{}", e.getMessage());
         return YuanR.fail(e.getErrEnum(), e.getMessage());
     }
 
@@ -51,7 +51,6 @@ public class YuanWebExceptionHandler {
                 errData.put(fieldError.getField(), Objects.requireNonNull(fieldError.getDefaultMessage()));
             }
         }
-        log.error("参数校验异常：{}", errData);
         return YuanR.fail(REQUEST_PARAM_VALID_ERROR, errData);
     }
 
@@ -63,13 +62,22 @@ public class YuanWebExceptionHandler {
      */
     @ExceptionHandler(AuthenticationException.class)
     public YuanR<String> handleException(AuthenticationException e) {
-        log.error("权限不足：{}", e.getMessage());
         return YuanR.fail(FORBIDDEN, e.getMessage());
+    }
+
+    /**
+     * 用户不存在异常捕获
+     *
+     * @param e 异常
+     * @return YuanR
+     */
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public YuanR<String> handleException(UsernameNotFoundException e) {
+        return YuanR.fail(USER_NOT_FOUND, e.getMessage());
     }
 
     @ExceptionHandler(FeignException.class)
     public YuanR<String> handleFeignException(FeignException e) {
-        log.error("feign接口调用异常：{}", e.getMessage());
         return YuanR.fail(FEIGN_API_ERROR, e.getMessage());
     }
 
@@ -81,8 +89,6 @@ public class YuanWebExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public YuanR<JSONObject> baseHandleException(Exception e) {
-        log.error("捕获到全局异常：{}", e.getMessage());
-        e.printStackTrace();
         return YuanR.fail(INTERNAL_SERVER_ERROR);
     }
 }

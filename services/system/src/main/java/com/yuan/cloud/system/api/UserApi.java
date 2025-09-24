@@ -1,12 +1,15 @@
 package com.yuan.cloud.system.api;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yuan.cloud.core.base.api.AbstractBaseApi;
 import com.yuan.cloud.core.common.annotation.YaApi;
 import com.yuan.cloud.core.common.constant.YaOauthConst;
 import com.yuan.cloud.core.common.enums.YuanStatusEnum;
 import com.yuan.cloud.core.common.exception.YuanApiException;
+import com.yuan.cloud.core.module.system.dto.RoleDTO;
+import com.yuan.cloud.core.module.system.dto.RouteDTO;
 import com.yuan.cloud.core.module.system.dto.UserDTO;
 import com.yuan.cloud.core.module.system.enums.UserStatusEnum;
 import com.yuan.cloud.core.module.system.vo.UserVO;
@@ -25,6 +28,9 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Description 用户接口
@@ -50,7 +56,22 @@ public class UserApi extends AbstractBaseApi<User, UserQuery, UserDTO, UserVO, I
             responses = {@ApiResponse(description = "用户信息", content = @Content(schema = @Schema(description = "系统用户信息")))})
     @GetMapping("findByUsername/{username}")
     public UserDTO findByUsername(@NotEmpty @PathVariable("username") String username) {
-        return BeanUtil.copyProperties(userService.findByUsernameIgnoreCase(username), UserDTO.class);
+        User user = userService.findByUsernameIgnoreCase(username);
+        UserDTO dto = BeanUtil.copyProperties(user, UserDTO.class, "roles");
+
+        if (CollUtil.isNotEmpty(user.getRoles())) {
+            List<RoleDTO> roles = new ArrayList<>();
+            for (Role role : user.getRoles()) {
+                RoleDTO roleDTO = BeanUtil.copyProperties(role, RoleDTO.class, "routes", "users");
+                if (CollUtil.isNotEmpty(role.getRoutes())) {
+                    roleDTO.setRoutes(BeanUtil.copyToList(role.getRoutes(), RouteDTO.class));
+                }
+                roles.add(roleDTO);
+            }
+            dto.setRoles(roles);
+        }
+
+        return dto;
     }
 
     @Operation(summary = "更新用户信息", description = "更新用户信息",
